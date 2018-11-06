@@ -1,10 +1,10 @@
 package main
 
 import (
-        "log"
-        "net/http"
+	"log"
+	"net/http"
 
-        "github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 )
 
 //Change these to not use global variables
@@ -27,7 +27,7 @@ func main() {
 	http.Handle("/", fs)
 
 	// Confgure websocket route
-	http.HandleFunc('/ws', handleConnections)
+	http.HandleFunc("/ws", handleConnections)
 	go handleMessages()
 
 	// Start the server on localhost port 8000 and log any errors
@@ -53,7 +53,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg Message
 		//Read in a new message as JSON and map it to a Message object
-		err := ws.ReadJson(&msg)
+		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
 			delete(clients, ws)
@@ -67,7 +67,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 func handleMessages() {
 	for {
 		// Grab the next message from the broadcast channel
-		msg := <- broadcast
+		msg := <-broadcast
 		// Send it out to every client that is currently connected
 		for client := range clients {
 			err := client.WriteJSON(msg)
