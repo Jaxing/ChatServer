@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col s2">
                 <ul id="example-1">
-                    <li v-for="ch in channels">
+                    <li v-for="(m, ch) in channels">
                         <button v-if=ch==channel class="waves-effect waves-teal btn-flat"  @click="changeChannel(ch)"><b>{{ ch }}</b></button>
                         <button v-else class="waves-effect waves-teal btn-flat"  @click="changeChannel(ch)">{{ ch }}</button>
                     </li>
@@ -32,21 +32,20 @@
                 <div class="row">
                     <div class="col s12">
                         <div class="card horizontal">
-                            <div id="chat-messages" class="card-content" v-html="chatContent">
+                            <div id="chat-messages" class="card-content">
                                 <ul>
-                                    <li v-for="msg in messages">
+                                <li v-for="msg in channels[channel]">
                                         <div class="chip">
-                                            <img src="self.gravatarURL(msg.email)">
-                                            msg.username
+                                            <img v-bind:src="msg.email">
+                                            {{msg.username}}
                                         </div>
-                                        msg.message
+                                        <span v-html="msg.message"></span>
                                         <br/>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-                </div>
                 <div class="row" v-if="joined">
                     <div class="input-field col s8">
                         <input type="text" v-model="newMsg" @keyup.enter="send">

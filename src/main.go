@@ -16,10 +16,13 @@ var upgrader = websocket.Upgrader{}
 
 // Define our message object
 type Message struct {
+	Channel  string `json:"channel"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Message  string `json:"message"`
 }
+
+var defaultChannel = "Sup"
 
 func main() {
 	// Create a simple file server
@@ -27,8 +30,8 @@ func main() {
 	http.Handle("/", fs)
 
 	// Confgure websocket route
-	http.HandleFunc("/ws", handleConnections)
-	go handleMessages()
+	http.HandleFunc("/ws", HandleConnections)
+	go HandleMessages()
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Println("http server started on :8000")
@@ -38,7 +41,7 @@ func main() {
 	}
 }
 
-func handleConnections(w http.ResponseWriter, r *http.Request) {
+func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade initial GET request to a websocket
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -47,7 +50,6 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	//Make sure we close the connection when the function returns
 	defer ws.Close()
 
-	// Register our new client
 	clients[ws] = true
 
 	for {
@@ -55,7 +57,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		//Read in a new message as JSON and map it to a Message object
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("error1: %v", err)
 			delete(clients, ws)
 			break
 		}
@@ -64,7 +66,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleMessages() {
+func HandleMessages() {
 	for {
 		// Grab the next message from the broadcast channel
 		msg := <-broadcast
@@ -72,7 +74,7 @@ func handleMessages() {
 		for client := range clients {
 			err := client.WriteJSON(msg)
 			if err != nil {
-				log.Printf("error: %v", err)
+				log.Printf("error2: %v", err)
 				client.Close()
 				delete(clients, client)
 			}

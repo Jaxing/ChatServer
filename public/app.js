@@ -4,13 +4,12 @@ new Vue({
     data: {
         ws: null, // Our websocket
         newMsg: '', // Holds new messages to be sent to the server
-        chatContent: '', // A running list of chat messages displayed on the screen
+        //chatContent: '', // A running list of chat messages displayed on the screen
         email: null, // Email address used for grabbing an avatar
         username: null, // Our username
         joined: false, // True if email and username have been filled in
         channel: 'sup',
-        channels: ['sup', 'hej'] ,
-        messages: []
+        channels: {'sup': [], 'hej': []}
     },
     created: function() {
         var self = this;
@@ -19,9 +18,10 @@ new Vue({
         this.ws.addEventListener('message', function(e) {
             var msg = JSON.parse(e.data);
             msg.message = emojione.toImage(msg.message);
-            self.messages.push(msg);
-            console.debug("message recived: " + msg)
-            console.debug("message list: " + self.messages);
+            msg.email = self.gravatarURL(msg.email);
+            self.channels[msg.channel].push(msg);
+            console.debug("message recived: " + msg.message + msg.email + msg.username);
+            console.log(self.channels[self.channel].length);
             var element = document.getElementById('chat-messages');
             element.scrollTop = element.scrollHeight; // Auto scroll to the bottom
         });
@@ -31,7 +31,6 @@ new Vue({
             if (this.newMsg != '') {
                 var msg = JSON.stringify({
                     channel: this.channel,
-                    channels: this.channels,
                     email: this.email,
                     username: this.username,
                     message: $('<p>').html(this.newMsg).text() // Strip out html
@@ -57,6 +56,7 @@ new Vue({
         changeChannel: function (newChannel) {
             if (newChannel != this.channel) {
                 this.channel = newChannel
+                console.debug(this.username + " switched to " + this.channel)
                 this.ws.send(
                     JSON.stringify({
                         email: this.email,
