@@ -14,3 +14,7 @@ main {
     width: 100%;
     overflow-y: scroll;
 }
+
+#server-text {
+    color: gray
+}
