@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col s2">
                 <ul id="example-1">
-                    <li v-for="(m, ch) in channels">
+                    <li v-for="ch in channels">
                         <button v-if=ch==channel class="waves-effect waves-teal btn-flat"  @click="changeChannel(ch)"><b>{{ ch }}</b></button>
                         <button v-else class="waves-effect waves-teal btn-flat"  @click="changeChannel(ch)">{{ ch }}</button>
                     </li>
@@ -34,12 +34,13 @@
                         <div class="card horizontal">
                             <div id="chat-messages" class="card-content">
                                 <ul>
-                                <li v-for="msg in channels[channel]">
+                                <li v-for="msg in messages">
                                         <div class="chip">
                                             <img v-bind:src="msg.email">
                                             {{msg.username}}
                                         </div>
-                                        <span v-html="msg.message"></span>
+                                        <span v-if=msg.username!="ChatBot" v-html="msg.message"></span>
+                                        <span v-else v-html="msg.message" class="bot-message"></span>
                                         <br/>
                                     </li>
                                 </ul>

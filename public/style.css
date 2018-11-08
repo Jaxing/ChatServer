@@ -15,6 +15,7 @@ main {
     overflow-y: scroll;
 }
 
-#server-text {
-    color: gray
+#bot-message {
+    color: gray !important;
+    font-style: italic !important;
 }

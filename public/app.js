@@ -9,19 +9,22 @@ new Vue({
         username: null, // Our username
         joined: false, // True if email and username have been filled in
         channel: 'sup',
-        channels: {'sup': [], 'hej': []}
+        channels: ['sup', 'hej'],
+        messages: []
     },
     created: function() {
         var self = this;
         this.ws = new WebSocket('ws://' + window.location.host + '/ws');
-        this.messages = []
         this.ws.addEventListener('message', function(e) {
-            var msg = JSON.parse(e.data);
-            msg.message = emojione.toImage(msg.message);
-            msg.email = self.gravatarURL(msg.email);
-            self.channels[msg.channel].push(msg);
-            console.debug("message recived: " + msg.message + msg.email + msg.username);
-            console.log(self.channels[self.channel].length);
+            var messages = JSON.parse(e.data);
+            self.messages = []
+            for (i = 0; i < messages.length; i++) {
+                var msg = messages[i];
+                msg.message = emojione.toImage(msg.message);
+                msg.email = self.gravatarURL(msg.email);
+                self.messages.push(msg)
+            }
+            console.log(self.messages)
             var element = document.getElementById('chat-messages');
             element.scrollTop = element.scrollHeight; // Auto scroll to the bottom
         });
@@ -31,6 +34,7 @@ new Vue({
             if (this.newMsg != '') {
                 var msg = JSON.stringify({
                     channel: this.channel,
+                    channels: this.channels,
                     email: this.email,
                     username: this.username,
                     message: $('<p>').html(this.newMsg).text() // Strip out html
@@ -52,20 +56,28 @@ new Vue({
             this.email = $('<p>').html(this.email).text();
             this.username = $('<p>').html(this.username).text();
             this.joined = true;
+            this.sendChatInfo(this.username + " joined")
         },
         changeChannel: function (newChannel) {
             if (newChannel != this.channel) {
                 this.channel = newChannel
-                console.debug(this.username + " switched to " + this.channel)
-                this.ws.send(
-                    JSON.stringify({
-                        email: this.email,
-                        username: this.username,
-                        message: $('<i>').html(this.username + "joined").text(), // Strip out 
-                        channel: this.channel
-                    }
-                ));
+                if (!this.channels.includes(this.channel)) {
+                    this.channels.push(this.channel)
+                } 
+                console.debug(this.username + " switched to " + this.channel);
+                this.messages = []
+                //TODO: send request for getting messeges of channel.
             }
+        },
+        sendChatInfo: function (text) {
+            var msg = JSON.stringify({
+                channel: this.channel,
+                channels: this.channels,
+                email: "ChatBot",
+                username: "ChatBot",
+                message: $('<p>').html(text).text() // Strip out html
+            });
+            this.ws.send(msg);
         },
         gravatarURL: function(email) {
             return 'http://www.gravatar.com/avatar/' + CryptoJS.MD5(email);
