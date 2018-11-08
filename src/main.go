@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -27,8 +29,15 @@ type Message struct {
 var defaultChannel = "Sup"
 
 func main() {
+	dir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	publicDir := strings.Join([]string{dir, "public"}, "/")
+	log.Printf(publicDir)
+
 	// Create a simple file server
-	fs := http.FileServer(http.Dir("../public"))
+	fs := http.FileServer(http.Dir(publicDir))
 	http.Handle("/", fs)
 
 	// Confgure websocket route
@@ -37,7 +46,7 @@ func main() {
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Println("http server started on :8000")
-	err := http.ListenAndServe(":8000", nil)
+	err = http.ListenAndServe(":8000", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
