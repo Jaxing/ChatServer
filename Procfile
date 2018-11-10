@@ -1,3 +1,2 @@
 web: 
-    make build
     chatserver
