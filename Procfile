@@ -1,1 +1,3 @@
-web: chatserver
+web: 
+    make build
+    chatserver
