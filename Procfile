@@ -1,1 +1,1 @@
-web: chatserver
+web: cd src; go run main.go
